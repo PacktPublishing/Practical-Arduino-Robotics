@@ -1,51 +1,23 @@
-#include <Wire.h> // Include the I2C library. 
+// Use pin A0 for analog input.
+const int analog_pin = A0;
 
-const uint8_t bno_address = 0x28; 
+void setup() {
+  // Start the Serial interface.
+  Serial.begin(115200);
+}
 
-const uint8_t bno_temp_register = 0X34; 
-
- 
-
-void setup() { 
-
-  Serial.begin(115200); 
-
-  Wire.begin(); // Start the I2C bus. 
-
-  delay(1000); // Give the BNO055 time to boot. 
-
-} 
-
- 
-
-void loop() { 
-
-  // Periodically print the BNO’s temperature to verify that the IC2 communication is workignworking. 
-
-  if (millis() % 200 == 0) { 
-
-    Serial.print("BNO055 temperature [°C]: "); 
-
-    Serial.println(bnoReadTemp()); 
-
-  } 
-
-} 
-
- 
-
-// Custom function to access the BNO’s temperature over I2C. 
-
-uint8_t bnoReadTemp() { 
-
-  Wire.beginTransmission(bno_address); // Begin I2C transmission to address 0x28. 
-
-  Wire.write((uint8_t)bno_temp_register); // Write the address of the temperature register to request temperature data. 
-
-  Wire.endTransmission(); // End the I2C transmission. 
-
-  Wire.requestFrom(bno_address, (byte)1); // Request one byte of data from the BNO. This will be the temperature data. 
-
-  return Wire.read(); // Read the requested temperate data and return it. 
-
-} 
+void loop() {
+  // Read the potentiometer voltage.
+  int analog_value = analogRead(analog_pin);
+  // Print analog value every 50 ms.
+  if (millis() % 50 == 0) {
+    // Print analog value.
+    Serial.print(analog_value);
+    // Tab character creates a new line in the plotter.
+    Serial.print('\t');
+    // Print min and max range to avoid auto-scaling.
+    Serial.print(0);
+    Serial.print('\t');
+    Serial.println(1023);
+  }
+}
