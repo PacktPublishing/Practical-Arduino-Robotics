@@ -7,6 +7,7 @@ Blinker status_blinker(13, 200);
 #if defined(__AVR_ATmega328P__) // Arduino Uno.
 #include <SoftwareSerial.h>
 // Pin assignments for Arduino Uno.
+// Using high-frequency PWM pins for motor control.
 // Camera SPI MOSI: 11
 // Camera SPI MISO: 12
 // Camera SPI SCK: 13
@@ -27,19 +28,20 @@ SoftwareSerial ble(ble_RX_pin, ble_TX_pin);
 
 #elif defined(__AVR_ATmega2560__) // Arduino Mega2560.
 // Pin assignments for Arduino Mega.
+// Taking into account the self-balancing robot.
 // Camera SPI MOSI: 51
 // Camera SPI MISO: 50
 // Camera SPI SCK: 52
 
-const int left_motor_pwm_pin = 4; // 980 Hz PWM.
-const int left_motor_dir_pin_A = 6;
-const int left_motor_dir_pin_B = 5;
+const int left_motor_pwm_pin = 11;
+const int left_motor_dir_pin_A = 5;
+const int left_motor_dir_pin_B = 4;
 
-const int right_motor_pwm_pin = 13; // 980 Hz PWM.
+const int right_motor_pwm_pin = 12;
 const int right_motor_dir_pin_A = 9;
 const int right_motor_dir_pin_B = 8;
 
-// Use HardwareSerial port 1 for Bluetooth.
+// Use HardwareSerial port 2 for Bluetooth.
 HardwareSerial& ble = Serial2;  // ble is a reference to Serial1. 
 
 #else
@@ -48,20 +50,20 @@ HardwareSerial& ble = Serial2;  // ble is a reference to Serial1.
 
 // Controller parameters.
 const int button_increment = 50;
-const int max_pwm = 200;
-const int line_follow_pwm_offset = 55;
-float kp_line = 4.0;
+const int max_motor_pwm = 200;
+const int line_follow_pwm_offset = 45;
+float kp_line = 3.5;
 
 // Power parameters.
 const float min_batt_voltage = 10.0;
 
 // Robot Modes.
 enum Mode {
-  manual_control,
-  follow_line
+  MANUAL_CONTROL,
+  FOLLOW_LINE
 };
 
-Mode mode = manual_control;
+Mode mode = MANUAL_CONTROL;
 
 // Motor class.
 class Motor {
@@ -71,7 +73,6 @@ class Motor {
       pwm_pin_ = pwm_pin;
       dir_pin_A_ = dir_pin_A;
       dir_pin_B_ = dir_pin_B;
-      max_pwm_ = max_pwm;
     }
 
     void Initialize(int max_pwm) {
@@ -86,7 +87,7 @@ class Motor {
     void SetPwm(int pwm) {
       // Constrain pwm to protect the motor.
       pwm_ = constrain(pwm, -max_pwm_, max_pwm_);
-      // Set directio according to sign of pwm parameter.
+      // Set direction according to sign of pwm parameter.
       bool dir = pwm_ > 0;
       digitalWrite(dir_pin_A_, dir);
       digitalWrite(dir_pin_B_, !dir);
@@ -121,8 +122,8 @@ void setup() {
   // Initialize blinker.
   status_blinker.begin();
   // Initialize motor driver pins.
-  left_motor.Initialize(max_pwm);
-  right_motor.Initialize(max_pwm);
+  left_motor.Initialize(max_motor_pwm);
+  right_motor.Initialize(max_motor_pwm);
   // Camera.
   Serial.println("Starting camera...");
   pixy.init();
@@ -132,7 +133,7 @@ void setup() {
 void loop() {
   ParseBle();
   
-  if (mode == follow_line) {
+  if (mode == FOLLOW_LINE) {
     FollowLine();
   }
   
@@ -176,7 +177,7 @@ void ParseBle() {
     if (databuf[2] == '1') {
       Serial.println(1);
       ble.println("Manual Control");
-      mode = manual_control; // Change mode.
+      mode = MANUAL_CONTROL; // Change mode.
       pixy.setLamp(0, 0); // Turn off camera lamp.
       left_motor.SetPwm(0); // Stop left motor.
       right_motor.SetPwm(0); // Stop right motor.
@@ -185,8 +186,8 @@ void ParseBle() {
     else if (databuf[2] == '2') {
       Serial.println(2);
       ble.println("Line Following");
-      mode = follow_line; // Change mode.
-      pixy.setLamp(255, 255); // Turn on camera lamps.
+      mode = FOLLOW_LINE; // Change mode.
+      pixy.setLamp(100, 100); // Turn on camera lamps.
     }
     else if (databuf[2] == '5') {
       Serial.println("UP");
@@ -212,7 +213,7 @@ void ParseBle() {
       left_pwm_increment_factor = 1;
       right_pwm_increment_factor = -1;
     }
-    if (print_enabled && (mode == manual_control)) {
+    if (print_enabled && (mode == MANUAL_CONTROL)) {
       // If under manual control, adjust the motor speed
       // and print out the updated motor speeds over Bluetooth.
       left_motor.AdjustPwm(left_pwm_increment_factor * button_increment);
@@ -227,7 +228,7 @@ void ParseBle() {
 void MonitorBattery() {
   if (GetBatteryVoltage() < min_batt_voltage) {
     // Put into manual mode, stop motors and turn off lamp.
-    mode = manual_control;
+    mode = MANUAL_CONTROL;
     left_motor.SetPwm(0);
     right_motor.SetPwm(0);
     pixy.setLamp(0, 0);
