@@ -1,3 +1,1 @@
-# Chapter 1
-
-The accompanying code example for chapter 1.
+# Introducing Robotics and the Arduino Ecosystem

@@ -1,3 +1,1 @@
-# Chapter 2
-
-The accompanying code examples for chapter 2.
+# Making Robots Perceive The World with Sensors
