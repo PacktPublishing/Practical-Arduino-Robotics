@@ -1,8 +1,8 @@
 // Install via Library Manager:
 #include <Adafruit_LSM6DS33.h>
-// Library developed in chapter 06:
+// Cystonm library developed in chapter 06:
 #include "Blinker.h"
-// Libraries included in chapter 13:
+// Custom libraries included in chapter 13:
 #include "CompFilter.h"
 #include "MotorDriver.h"
 #include "QuadEncoder.h"
@@ -17,8 +17,9 @@
 // SCK: 52
 const int kSpiCsPin = 10;
 
-// Power system pins.
+// Power system pins and parameters.
 const int kBatteryVoltagePin = A0;  // pin 54
+const float kMinBatteryVoltage = 10.5;
 
 namespace left {
 const int kEncoderPinA = 20;  // Interrupt. Conflicts with I2C. Yellow.
@@ -89,7 +90,8 @@ void risingISR() {
 
 /*************** SETTINGS ***************/
 // Arduino settings.
-const int kTimer1PrescalerSetting = 0b001;  // For motor PWM.
+// Timer/Counter1 prescaler setting for motor PWM.
+const int kTimer1PrescalerSetting = 0b001;
 const long kSerialBaudrate = 115200;
 
 // IMU
@@ -136,7 +138,7 @@ Blinker myBlinker(13, 500);
 Adafruit_LSM6DS33 imu;  // IMU.
 // Containers for IMU data.
 sensors_event_t accel, gyro, temp;
-CompFilter PitchFilter(kCompFilterCoeff);  // Filter for pitch angle estimation.
+CompFilter pitchFilter(kCompFilterCoeff);  // Filter for pitch angle estimation.
 
 /*************** HELPER FUNCTIONS ***************/
 float rad2deg(float rad) {
@@ -162,9 +164,10 @@ void parseFloatParameter(float &parameter) {
 }
 
 float getBatteryVoltage() {
+  const float R_sense = 4.7;                             // kOhm
+  const float R_series = 10.0;                           // kOhm
   float U_sense = 5.0 * (float)analogRead(A0) / 1023.0;  // V
-  float R_series = 10.0;                                 // kOhm
-  float R_sense = 3.3;                                   // kOhm
+  // Compute battery voltage in Volts.
   return U_sense * (R_series + R_sense) / R_sense;       // V
 }
 
@@ -194,8 +197,9 @@ void setup() {
   TCCR1B = TCCR1B & 0b11111000 | kTimer1PrescalerSetting;
 
   // Initialize motor drivers.
-  left::motor.begin();
-  right::motor.begin();
+  const int motor_max_pwm = 255;
+  left::motor.begin(motor_max_pwm);
+  right::motor.begin(motor_max_pwm);
 
   // Initiliaze encoders.
   left::encoder.begin();
@@ -216,7 +220,7 @@ void setup() {
     gyro_x_offset += gyro.gyro.x;
   }
   gyro_x_offset /= (float)kNumImuCalibSamples;
-  PitchFilter.setGyroOffset(gyro_x_offset);
+  pitchFilter.setGyroOffset(gyro_x_offset);
 
   // Initialize task scheduling.
   control_task::last_time = millis();
@@ -226,7 +230,7 @@ void setup() {
 void loop() {
   // Status blinking.
   myBlinker.blink();
-  if (getBatteryVoltage() < 10.5 && battery_ok) {
+  if (getBatteryVoltage() < kMinBatteryVoltage && battery_ok) {
     battery_ok = false;
     // Signal low battery with high frquency blinking.
     myBlinker.set_blink_interval(50);
@@ -246,12 +250,12 @@ void loop() {
     // Get IMU data.
     imu.getEvent(&accel, &gyro, &temp);
     // Perform pitch filter update.
-    PitchFilter.update(gyro.gyro.x, accel.acceleration.z, accel.acceleration.y, control_task::kInterval * 1000);
+    pitchFilter.update(gyro.gyro.x, accel.acceleration.z, accel.acceleration.y, control_task::kInterval * 1000);
     // Enable motors when the robot is upright.
-    if ((abs(kPitchOffset - PitchFilter.getAngleFiltered()) < 0.01) && (!motors_enabled)) {
+    if ((abs(kPitchOffset - pitchFilter.getAngleFiltered()) < 0.01) && (!motors_enabled)) {
       motors_enabled = true;
     }
-    if (abs(rad2deg(PitchFilter.getAngleFiltered())) > kCutoffPitchDeg) {
+    if (abs(rad2deg(pitchFilter.getAngleFiltered())) > kCutoffPitchDeg) {
       motors_enabled = false;
     }
 
@@ -260,7 +264,7 @@ void loop() {
     int pwm = 0;
     // diff_pwm gets applied to the motors with different sign.
     int diff_pwm = 0;
-    pwm += kp_balance * (kPitchOffset - PitchFilter.getAngleFiltered());  // P-control.
+    pwm += kp_balance * (kPitchOffset - pitchFilter.getAngleFiltered());  // P-control.
     pwm += kd_balance * gyro.gyro.x;                                      // D-control.
 
     // Position controller
@@ -287,6 +291,6 @@ void loop() {
   // High rate debug output.
   if (millis() > print_task::last_time + print_task::kInterval) {
     print_task::last_time += print_task::kInterval;
-    Serial.print(rad2deg(PitchFilter.getAngleFiltered()));
+    Serial.print(rad2deg(pitchFilter.getAngleFiltered()));
   }
 }
