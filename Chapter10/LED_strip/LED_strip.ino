@@ -33,8 +33,8 @@ void loop() {
   parse_interval();
   // Or set brigthness levels via analog inputs.
   // redDimmer.set_duty_cycle(analogRead(A0));
-  // greenimmer.set_duty_cycle(analogRead(A0));
-  // blueDimmer.set_duty_cycle(analogRead(A0));
+  // greenimmer.set_duty_cycle(analogRead(A1));
+  // blueDimmer.set_duty_cycle(analogRead(A2));
 }
 
 void parse_interval() {
