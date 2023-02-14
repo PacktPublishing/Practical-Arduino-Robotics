@@ -1,6 +1,6 @@
 // Install via Library Manager:
 #include <Adafruit_LSM6DS33.h>
-// Cystonm library developed in chapter 06:
+// Custom library developed in chapter 06:
 #include "Blinker.h"
 // Custom libraries included in chapter 13:
 #include "CompFilter.h"
@@ -200,7 +200,7 @@ void setup() {
   left::motor.begin();
   right::motor.begin();
 
-  // Initiliaze encoders.
+  // Initialize encoders.
   left::encoder.begin();
   right::encoder.begin();
 
@@ -231,7 +231,7 @@ void loop() {
   myBlinker.blink();
   if (getBatteryVoltage() < kMinBatteryVoltage && battery_ok) {
     battery_ok = false;
-    // Signal low battery with high frquency blinking.
+    // Signal low battery with high frequency blinking.
     myBlinker.set_blink_interval(50);
   }
 
