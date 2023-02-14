@@ -197,9 +197,8 @@ void setup() {
   TCCR1B = TCCR1B & 0b11111000 | kTimer1PrescalerSetting;
 
   // Initialize motor drivers.
-  const int motor_max_pwm = 255;
-  left::motor.begin(motor_max_pwm);
-  right::motor.begin(motor_max_pwm);
+  left::motor.begin();
+  right::motor.begin();
 
   // Initiliaze encoders.
   left::encoder.begin();
