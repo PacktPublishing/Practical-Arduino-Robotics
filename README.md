@@ -1,8 +1,8 @@
-# Unlocking the Power of Arduino for DIY Robots
+# Practical Arduino Robotics
 
 <a href="https://www.packtpub.com/product/unlocking-the-power-of-arduino-in-diy-robots/9781804613177"><img src="https://m.media-amazon.com/images/I/4172bzAJNOL.jpg" alt="Book Name" height="256px" align="right"></a>
 
-This is the code repository for [Unlocking the Power of Arduino for DIY Robots](https://www.packtpub.com/product/unlocking-the-power-of-arduino-in-diy-robots/9781804613177), published by Packt.
+This is the code repository for [Practical Arduino Robotics](https://www.packtpub.com/product/unlocking-the-power-of-arduino-in-diy-robots/9781804613177), published by Packt.
 
 **A hands-on guide to bringing your robotics ideas to life using Arduino**
 
