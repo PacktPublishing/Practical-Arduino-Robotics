@@ -1,6 +1,6 @@
 # Practical Arduino Robotics
 
-<a href="https://www.packtpub.com/product/unlocking-the-power-of-arduino-in-diy-robots/9781804613177"><img src="https://m.media-amazon.com/images/I/4172bzAJNOL.jpg" alt="Book Name" height="256px" align="right"></a>
+<a href="https://www.packtpub.com/product/unlocking-the-power-of-arduino-in-diy-robots/9781804613177"><img src="https://static.packt-cdn.com/products/9781804613177/cover/smaller" alt="Book Name" height="256px" align="right"></a>
 
 This is the code repository for [Practical Arduino Robotics](https://www.packtpub.com/product/unlocking-the-power-of-arduino-in-diy-robots/9781804613177), published by Packt.
 
