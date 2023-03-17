@@ -78,3 +78,8 @@ We also provide a PDF file that has color images of the screenshots/diagrams use
 ## Get to Know the Author
 **Lukas Kaul**
 He is a robotics Research Scientist, currently working at the Toyota Research Institute in Silicon Valley, where he develops mobile manipulation technologies to support people in their homes and in their workplace. Throughout his career he has worked on projects as diverse as humanoid robots, aerial robots and mobile manipulation systems. A maker at heart, Lukas has been using Arduino technology extensively for more than a decade in countless side-projects, ranging from mapping systems to self-balancing robots. Lukas is passionate about teaching robotics with Arduino to inspire and empower anyone who wants to enter the exciting field of robotics. He holds a PhD degree from the Karlsruhe Institute of Technology, Germany.
+
+### Download a free PDF
+
+ <i>If you have already purchased a print or Kindle version of this book, you can get a DRM-free PDF version at no cost.<br>Simply click on the link to claim your free PDF.</i>
+<p align="center"> <a href="https://packt.link/free-ebook/9781804613177">https://packt.link/free-ebook/9781804613177 </a> </p>
