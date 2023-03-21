@@ -1,13 +1,22 @@
+// Example code to decode an RC receiver's PPM signal output.
+// In a PPM packet, the channel values are encoded by the time between the start
+// of consecutive pulses.
+// PPM packets are separated by a long pause ("blank time" or "sync phase") between pulses.
+// Below is a signal showing two PPM packets encoding two channels, A and B.
+//    _     _     _         _    _   _
+//___|_|___|_|___|_|_______| |__| |_| |___
+//   [--A--|--B--]  sync   [--A-|-B-]
+
 // The Arduino pin that is connected to the receiver's PPM output pin.
 const int kInputPin = 2;
-// The number of channels decoded in the PPM signal.
+// The number of channels encoded in the PPM signal.
 const int kNumChannels = 8;
 // The minimum LOW time (in microseconds) between consecutive PPM packages.
 const int kSyncDurationThreshold = 2500;
 
 
 // All these variables are used by the ISR and should not be changed manually.
-// The value contained in pulses[] will be updated by the interrupt service handler.
+// The values contained in pulses[] will be updated by the interrupt service handler.
 volatile int pulses[kNumChannels];
 volatile unsigned long last_rise_time = 0;
 volatile int channel_idx = 0;
