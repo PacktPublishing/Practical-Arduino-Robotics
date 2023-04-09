@@ -101,7 +101,7 @@ public:
     bool dir = pwm_ > 0;
     digitalWrite(dir_pin_A_, dir);
     digitalWrite(dir_pin_B_, !dir);
-    int command_pwm = abs(pwm);
+    int command_pwm = abs(pwm_);
     analogWrite(pwm_pin_, command_pwm);
   }
 
